@@ -1,0 +1,5 @@
+-- UP: $title
+
+BEGIN;
+
+COMMIT;

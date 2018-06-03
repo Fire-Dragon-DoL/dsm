@@ -1,0 +1,111 @@
+#!/bin/bash
+
+migrate_version='v3.2.0'
+executable="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+app_path="$(dirname "$(dirname "$executable")")"
+
+echo "[Info] Executable path $executable"
+echo "[Info] DSM path $app_path"
+
+err_title_exists=1
+err_title_missing=2
+err_invalid_command=3
+err_invalid_os=4
+err_missing_downloader=5
+err_no_database_url=6
+err_no_deploy_env=7
+err_no_deploy_dir=8
+
+project="${DSM_PROJECT_PATH:-$(pwd)}"
+source "${app_path}/lib/utils/dsmrc.sh"
+database="${DSM_DATABASE_URL}"
+
+echo "[Info] Project path $project"
+echo "[Info] Database URL loaded"
+
+source "${app_path}/lib/commands/setup.sh"
+source "${app_path}/lib/commands/clean.sh"
+source "${app_path}/lib/commands/migrate.sh"
+source "${app_path}/lib/commands/down.sh"
+source "${app_path}/lib/commands/generate.sh"
+source "${app_path}/lib/commands/destroy.sh"
+source "${app_path}/lib/commands/deploy.sh"
+
+dsm_perform() {
+  case "$1" in
+    setup)
+      dsm_perform clean
+      dsm_cmd_setup
+      ;;
+
+    clean)
+      dsm_cmd_clean
+      ;;
+
+    migrate)
+      local migrate_args="${@:2}"
+      dsm_cmd_migrate "$migrate_args"
+      ;;
+
+    up)
+      local migrate_args="${@:2}"
+      dsm_perform migrate up "$migrate_args"
+      ;;
+
+    down)
+      local migrate_args="${@:2}"
+      dsm_cmd_down "$migrate_args"
+      ;;
+
+    generate)
+      local migrate_args="${@:2}"
+      dsm_cmd_generate "$migrate_args"
+      ;;
+
+    destroy)
+      local migrate_args="${@:2}"
+      dsm_cmd_destroy "$migrate_args"
+      ;;
+
+    deploy)
+      local deploy_args="${@:2}"
+      dsm_cmd_deploy "$deploy_args"
+      ;;
+
+    version)
+      local migrate_args="${@:2}"
+      dsm_perform migrate version "$migrate_args"
+      ;;
+
+    force)
+      local migrate_args="${@:2}"
+      dsm_perform migrate force "$migrate_args"
+      ;;
+
+    goto)
+      local migrate_args="${@:2}"
+      dsm_perform migrate goto "$migrate_args"
+      ;;
+
+    shortlist)
+      echo 'setup clean migrate up down generate destroy deploy version force goto'
+      ;;
+
+    *)
+      if [[ ! -z "${1// }" ]]; then
+        echo $"Invalid command: $1"
+      fi
+      local shortlist="$(dsm_perform shortlist)"
+      echo $"Usage: $executable ${shortlist// /|}"
+      exit $err_invalid_command
+      ;;
+
+  esac
+}
+
+pushd "$project" > /dev/null
+dsm_perform "$@"
+performed_result=$?
+popd > /dev/null
+
+exit $performed_result
