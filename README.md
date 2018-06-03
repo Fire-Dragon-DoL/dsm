@@ -30,8 +30,6 @@ You can supply a `.dsmrc` file that will be automatically loaded (with `source`
 ## Usage
 
 ```bash
-# Path is optional and assumes "$PWD", but you can specify it in PROJECT_PATH
-export PROJECT_PATH='/path/to/migrations'
 dsm migrate
 ```
 
