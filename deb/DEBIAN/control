@@ -1,0 +1,10 @@
+Package: dsm
+Version: __VERSION__
+Section: database
+Priority: optional
+Architecture: all
+Depends: curl (>= 7)
+Maintainer: Francesco Belladonna <francesco.belladonna@gmail.com>
+Description: DSM
+ Utility to migrate database using SQL up and down files
+

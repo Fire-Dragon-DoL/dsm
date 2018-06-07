@@ -1,0 +1,9 @@
+/containers
+/.git
+/_release
+.envrc
+.gitignore
+.rsyncignore
+.tool-versions
+bin/app
+

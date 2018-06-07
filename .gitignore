@@ -1,4 +1,5 @@
 /build/
+/_release/
 .envrc
 .tool-versions
 .dsmrc

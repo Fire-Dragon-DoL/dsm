@@ -1,0 +1,97 @@
+#!/bin/bash
+
+executable="$0"
+project="${PROJECT_PATH:-$PWD}"
+
+err_invalid_command=1
+
+env_image='dsm/ubuntu'
+release_image='dsm/release'
+app_version="$(cat "$project/VERSION")"
+
+perform() {
+  case "$1" in
+    build)
+      set -e
+        docker build \
+          -t "$env_image" \
+          --file "$project/containers/dsm/ubuntu/Dockerfile" \
+          "$project"
+      set +e
+      ;;
+
+    build:start)
+      set -e
+        perform build
+      set +e
+      docker run -it --rm --entrypoint /bin/bash "$env_image"
+      ;;
+
+    build:clean)
+      docker rmi "$release_image" "$release_image"
+      docker rmi "$env_image" "$env_image"
+      ;;
+
+    build:release)
+      set -e
+        perform build
+        docker build \
+          -t "$release_image" \
+          --file "$project/containers/dsm/release/Dockerfile" \
+          "$project"
+      set +e
+      ;;
+
+    release:clean)
+      rm -f "$project/_release/dsm.deb"
+      ;;
+
+    release)
+      set -e
+        perform build:release
+        local id="$(docker run --rm -d "$release_image")"
+        perform release:clean
+        mkdir -p "$project/_release"
+        docker cp \
+          "${id}:/app/dsm.deb" \
+          "$project/_release/dsm.deb"
+        docker stop "$id"
+      set +e
+      ;;
+
+    release:start)
+      set -e
+        perform build:release
+      set +e
+      docker run -it --rm --entrypoint /bin/bash "$release_image"
+      ;;
+
+    clean)
+      set -e
+        perform build:clean
+        perform release:clean
+      set +e
+      ;;
+
+    shortlist)
+      echo 'build clean setup release'
+      ;;
+
+    *)
+      if [[ ! -z "${1// }" ]]; then
+        >&2 echo $"Invalid command: $1"
+      fi
+      local shortlist_out="$(perform shortlist)"
+      >&2 echo $"Usage: $executable ${shortlist_out// /|}"
+      exit $err_invalid_command
+      ;;
+
+  esac
+}
+
+pushd "$project" > /dev/null
+perform "$@"
+performed_result=$?
+popd > /dev/null
+
+exit $performed_result
