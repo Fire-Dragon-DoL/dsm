@@ -29,7 +29,6 @@ source "${app_path}/lib/commands/migrate.sh"
 source "${app_path}/lib/commands/down.sh"
 source "${app_path}/lib/commands/generate.sh"
 source "${app_path}/lib/commands/destroy.sh"
-source "${app_path}/lib/commands/deploy.sh"
 
 dsm_perform() {
   case "$1" in
@@ -67,11 +66,6 @@ dsm_perform() {
       dsm_cmd_destroy "$migrate_args"
       ;;
 
-    deploy)
-      local deploy_args="${@:2}"
-      dsm_cmd_deploy "$deploy_args"
-      ;;
-
     version)
       local migrate_args="${@:2}"
       dsm_perform migrate version "$migrate_args"
@@ -88,7 +82,7 @@ dsm_perform() {
       ;;
 
     shortlist)
-      echo 'setup clean migrate up down generate destroy deploy version force goto'
+      echo 'clean migrate up down generate destroy version force goto'
       ;;
 
     *)

@@ -1,12 +1,13 @@
 FROM dsm/ubuntu:latest
 
 ENV LANG C.UTF-8
+ARG DSM_DATABASE_URL=nothing
 
 WORKDIR /app
-RUN  /app/bin/dsm setup \
-  && cp -r "/app/build" "/app/deb/opt/dsm/build"
+RUN  /app/bin/dsm setup
 
-RUN  cp -r "/app/bin" "/app/deb/opt/dsm/bin" \
+RUN  cp -r "/app/build" "/app/deb/opt/dsm/build" \
+  && cp -r "/app/bin" "/app/deb/opt/dsm/bin" \
   && cp -r "/app/lib" "/app/deb/opt/dsm/lib" \
   && cp -r "/app/templates" "/app/deb/opt/dsm/templates" \
   && cp "/app/VERSION" "/app/deb/opt/dsm/VERSION" \

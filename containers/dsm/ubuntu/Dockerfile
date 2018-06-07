@@ -6,3 +6,8 @@ ENV LANG C.UTF-8
 WORKDIR /app
 COPY . /app
 
+RUN apt-get update && apt-get -y install apt-utils
+
+RUN apt-get -y install \
+  curl \
+  unzip

@@ -10,7 +10,6 @@ Utility to run SQL-only migrations.
 - `curl` or `wget` in `PATH`
 - `grep`
 - `awk`
-- `rsync` (deploy only)
 
 ## Settings
 
@@ -19,10 +18,6 @@ Utility to run SQL-only migrations.
 - `DSM_DATABASE_URL` _optional_ — Configuration to connect to the database, it
   follows
   [migrate convention](https://github.com/golang-migrate/migrate/blob/master/database/postgres/README.md)
-- `DSM_DEPLOY_TO_PRODUCTION` (or `_STAGING` or any other environment) server
-  target for `ssh` (`rsync`)
-- `DSM_DEPLOY_DIR_PRODUCTION` (or `_STAGING` or any other environment)
-  directory on the server where the migrations will be copied to
 
 You can supply a `.dsmrc` file that will be automatically loaded (with `source`
 ) whenever you run `dsm`.
@@ -64,10 +59,6 @@ A migration "version" is the number preceeding the migration title. E.g.:
   prepends the `-source` option (picks the right directory for migrations) and
   `-database` using environment variables from the [Settings](#settings)
 
-- `deploy` — requires `environment` (only `staging` and `production` currently
-  available), it will push the codebase to the server and run the `up` command
-  for you
-
 Ideally,`setup` is used only (once), then `generate`, `up` and `down` are used
 the rest of the time. A normal workflow for the tool is:
 
@@ -78,8 +69,6 @@ dsm generate users
 # Fill in xxxx_users.up.sql file
 # Fill in xxxx_users.down.sql file
 dsm up
-# If everything is fine
-dsm deploy production
 ```
 
 For further details on commands regarding `migrate`, check the
